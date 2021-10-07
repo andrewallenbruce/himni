@@ -15,5 +15,22 @@
     "preview": {},
     "last_modified": "2021-10-06T22:33:22-04:00",
     "input_file": {}
+  },
+  {
+    "path": "posts/2021-10-06-my-second-blog-postthis-one-will-be-really-good/",
+    "title": "Second Post",
+    "description": "A short description of the post.",
+    "author": [
+      {
+        "name": "Andrew Bruce",
+        "url": "https://example.com/norajones"
+      }
+    ],
+    "date": "2021-10-06",
+    "categories": [],
+    "contents": "\r\nDistill is a publication format for scientific and technical writing, native to the web.\r\nLearn more about using Distill at https://rstudio.github.io/distill.\r\n\r\n\r\n\r\n",
+    "preview": {},
+    "last_modified": "2021-10-06T23:17:57-04:00",
+    "input_file": "my-second-blog-postthis-one-will-be-really-good.knit.md"
   }
 ]
