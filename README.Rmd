@@ -7,7 +7,7 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse  = TRUE,
-  echo      = FALSE, 
+  echo      = TRUE, 
   message   = FALSE, 
   warning   = FALSE,
   error     = TRUE,
@@ -46,12 +46,59 @@ remotes::install_github("andrewallenbruce/himni")
 library(himni)
 ```
 
-```{r eval=FALSE}
-cars |> himni::summit(dist)
+```{r}
+purrr::map_dfr(2013:2020, 
+      ~provider::physician_by_service(npi = 1003000126, year = .x)) |> 
+  dplyr::select(year, 
+                hcpcs_cd, 
+                tot_benes, 
+                tot_srvcs, 
+                avg_sbmtd_chrg, 
+                avg_mdcr_alowd_amt, 
+                avg_mdcr_pymt_amt) |> 
+  dplyr::group_by(year) |> 
+  himni::summit(avg_mdcr_pymt_amt) |> 
+  dplyr::select(-miss, -skewed, -tailedness) |> 
+  gluedown::md_table()
+```
+
+```{r}
+fancy_ts <- function(df, val, group) {
+  labs <- df |> 
+    dplyr::group_by({{ group }}) |> 
+    dplyr::summarize(breaks = max({{ val }}))
+  
+  df |> 
+    ggplot2::ggplot(
+      ggplot2::aes(date, {{ val }},
+                   group = {{ group }}, 
+                   color = {{ group }})) +
+    ggplot2::geom_path() +
+    ggplot2::scale_y_continuous(
+      breaks = labs$breaks, 
+      labels = scales::label_comma(),
+      minor_breaks = NULL,
+      guide = ggplot2::guide_axis(position = "right")) 
+}
+
+df <- tibble::tibble(
+  dist1 = sort(rnorm(50, 5, 2)), 
+  dist2 = sort(rnorm(50, 8, 3)),
+  dist4 = sort(rnorm(50, 15, 1)),
+  date = seq.Date(as.Date("2022-01-01"), 
+                  as.Date("2022-04-10"), 
+                  by = "2 days"))
+
+df <- tidyr::pivot_longer(df, 
+                          cols = -date, 
+                          names_to = "dist_name", 
+                          values_to = "value")
+
+fancy_ts(df, value, dist_name)
 ```
 
 
-```{r results='asis', echo=FALSE}
+```{r results='asis', echo=TRUE}
 cars |> 
   himni::summit(dist) |> 
   dplyr::select("Interquartile Range" = iqr, 
@@ -62,10 +109,67 @@ cars |>
                 Maximum = max, 
                 Observations = n, 
                 Missing = n_miss, 
-                Range = rng) |> 
+                Range = rng,
+                "Standard Deviation" = sd,
+                Skewness = skewness,
+                Skewed = skewed,
+                Kurtosis = kurtosis,
+                Tailedness = tailedness) |> 
+  dplyr::mutate(dplyr::across(everything(), as.character)) |> 
   tidyr::pivot_longer(cols = dplyr::everything(), 
                       names_to = "Statistic", 
                       values_to = "Value") |> 
+  gluedown::md_table()
+```
+
+```{r}
+histogram <- function(df, var, binwidth) {
+  label <- rlang::englue("A histogram of {{var}} with binwidth {binwidth}")
+  
+  df |> ggplot2::ggplot(ggplot2::aes({{ var }})) + 
+        ggplot2::geom_histogram(binwidth = binwidth) +
+        ggplot2::labs(title = label)
+}
+
+ggplot2::diamonds |> histogram(carat, 0.1)
+```
+
+```{r}
+density <- function(df, var, color, facets, binwidth = 0.1) {
+  df |> 
+    ggplot2::ggplot(ggplot2::aes({{ var }}, 
+                    ggplot2::after_stat(density), 
+                    color = {{ color }})) +
+    ggplot2::geom_freqpoly(binwidth = binwidth) +
+    ggplot2::facet_wrap(ggplot2::vars({{ facets }}))
+}
+
+ggplot2::diamonds |> density(carat)
+ggplot2::diamonds |> density(carat, cut)
+ggplot2::diamonds |> density(carat, cut, clarity)
+```
+
+
+
+```{r results='asis', echo=TRUE}
+purrr::map_dfr(2013:2020, 
+      ~provider::physician_by_service(npi = 1003000126, year = .x)) |> 
+  dplyr::select(year, 
+                hcpcs_cd, 
+                tot_benes, 
+                tot_srvcs, 
+                avg_sbmtd_chrg, 
+                avg_mdcr_alowd_amt, 
+                avg_mdcr_pymt_amt) |> 
+  himni::count_prop(hcpcs_cd, sort = TRUE) |> 
+  gluedown::md_table()
+```
+
+```{r results='asis', echo=TRUE}
+options(scipen = 999)
+ggplot2::diamonds |> 
+  count_prop_mult(c(clarity, color), cut, sort = TRUE) |> 
+  head() |> 
   gluedown::md_table()
 ```
 

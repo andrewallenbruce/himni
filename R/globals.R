@@ -2,5 +2,8 @@
 
 utils::globalVariables(c(
   "n", # <count_prop>
+  "n", # <count_prop_mult>
+  "skewness", # <summit>
+  "kurtosis", # <summit>
   NULL
 ))

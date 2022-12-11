@@ -2,11 +2,9 @@
 #'
 #' @param data df
 #' @param var col in df
-#'
 #' @return A [tibble][tibble::tibble-package] with the summarized data
 #' @export
 #' @autoglobal
-#'
 #' @examples
 #' df <- tibble::tibble(
 #'    a = rnorm(5),
@@ -20,14 +18,23 @@
 #'   summit(a)
 summit <- function(data, var) {
   data |> dplyr::summarize(
-    iqr     = IQR({{ var }}, na.rm = TRUE),
-    mad     = mad({{ var }}, na.rm = TRUE),
-    min     = min({{ var }}, na.rm = TRUE),
-    mean    = mean({{ var }}, na.rm = TRUE),
-    median  = median({{ var }}, na.rm = TRUE),
-    max     = max({{ var }}, na.rm = TRUE),
-    n       = dplyr::n(),
-    n_miss  = sum(is.na({{ var }})),
-    rng     = max({{ var }}, na.rm = TRUE) - min({{ var }}, na.rm = TRUE),
-    .groups = "drop")
+    iqr         = IQR({{ var }}, na.rm = TRUE),
+    mad         = mad({{ var }}, na.rm = TRUE),
+    min         = min({{ var }}, na.rm = TRUE),
+    mean        = mean({{ var }}, na.rm = TRUE),
+    median      = median({{ var }}, na.rm = TRUE),
+    max         = max({{ var }}, na.rm = TRUE),
+    obs         = dplyr::n(),
+    miss        = sum(is.na({{ var }})),
+    rng         = max({{ var }}, na.rm = TRUE) - min({{ var }}, na.rm = TRUE),
+    sd          = sd({{ var }}, na.rm = TRUE),
+    skewness    = skew({{ var }}),
+    skewed      = dplyr::if_else(skewness < 0,
+                                 "right-leaning",
+                                 "left-leaning"),
+    kurtosis    = kurt({{ var }}),
+    tailedness  = dplyr::if_else(kurtosis < 3,
+                                 "broad (platykurtic)",
+                                 "slender (leptokurtic)"),
+    .groups     = "drop")
 }
