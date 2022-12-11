@@ -1,5 +1,5 @@
 Package: himni
-Title: What the Package Does (One Line, Title Case)
+Title: A Personal Collection of Helpful Functions
 Version: 0.0.0.9000
 Authors@R: 
     person("Andrew", "Bruce", , "andrewbruce.himni@gmail.com", role = c("aut", "cre"))
