@@ -18,14 +18,12 @@ A \link[tibble:tibble-package]{tibble} with the summarized data
 Summarizes var column in data
 }
 \examples{
-df <- tibble::tibble(
+dplyr::tibble(
    a = rnorm(5),
    b = rnorm(5),
    c = rnorm(5),
    d = rnorm(5),
-   e = 1:5)
-
-df |>
+   e = 1:5) |>
   dplyr::group_by(e) |>
   summit(a)
 }

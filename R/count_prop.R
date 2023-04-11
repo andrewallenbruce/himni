@@ -1,5 +1,4 @@
 #' Count and compute proportion in data frame column
-#'
 #' @param df data frame
 #' @param var column in data frame
 #' @param sort sort count
@@ -21,7 +20,6 @@ count_prop <- function(df, var, sort = FALSE) {
 }
 
 #' Count and compute proportion in data frame column
-#'
 #' @param df data frame
 #' @param rows rows in data frame
 #' @param cols cols in data frame

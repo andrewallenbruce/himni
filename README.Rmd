@@ -4,7 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse  = TRUE,
   echo      = TRUE, 
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   warning   = FALSE,
   error     = TRUE,
   comment   = "#>",
-  dpi       = 150, 
+  dpi       = 300, 
   out.width = "100%",
   fig.path  = "man/figures/README-"
 )
@@ -40,15 +40,23 @@ devtools::install_github("andrewallenbruce/himni")
 remotes::install_github("andrewallenbruce/himni")
 ```
 
-## Example
-
-```{r example}
+```{r}
 library(himni)
 ```
 
+## Summit
+
 ```{r}
-purrr::map_dfr(2013:2020, 
-      ~provider::physician_by_service(npi = 1003000126, year = .x)) |> 
+phys <- purrr::map_dfr(2013:2020, 
+      ~provider::physician_by_service(npi = 1003000126, 
+                                      year = .x)) |> 
+  tidyr::unnest(cols = c(totals_srvcs, 
+                         hcpcs, 
+                         averages))
+```
+
+```{r results='asis', echo=TRUE}
+phys |> 
   dplyr::select(year, 
                 hcpcs_cd, 
                 tot_benes, 
@@ -58,59 +66,23 @@ purrr::map_dfr(2013:2020,
                 avg_mdcr_pymt_amt) |> 
   dplyr::group_by(year) |> 
   himni::summit(avg_mdcr_pymt_amt) |> 
-  dplyr::select(-miss, -skewed, -tailedness) |> 
+  dplyr::select(-miss, -obs) |> 
   gluedown::md_table()
 ```
-
-```{r}
-fancy_ts <- function(df, val, group) {
-  labs <- df |> 
-    dplyr::group_by({{ group }}) |> 
-    dplyr::summarize(breaks = max({{ val }}))
-  
-  df |> 
-    ggplot2::ggplot(
-      ggplot2::aes(date, {{ val }},
-                   group = {{ group }}, 
-                   color = {{ group }})) +
-    ggplot2::geom_path() +
-    ggplot2::scale_y_continuous(
-      breaks = labs$breaks, 
-      labels = scales::label_comma(),
-      minor_breaks = NULL,
-      guide = ggplot2::guide_axis(position = "right")) 
-}
-
-df <- tibble::tibble(
-  dist1 = sort(rnorm(50, 5, 2)), 
-  dist2 = sort(rnorm(50, 8, 3)),
-  dist4 = sort(rnorm(50, 15, 1)),
-  date = seq.Date(as.Date("2022-01-01"), 
-                  as.Date("2022-04-10"), 
-                  by = "2 days"))
-
-df <- tidyr::pivot_longer(df, 
-                          cols = -date, 
-                          names_to = "dist_name", 
-                          values_to = "value")
-
-fancy_ts(df, value, dist_name)
-```
-
 
 ```{r results='asis', echo=TRUE}
 cars |> 
   himni::summit(dist) |> 
-  dplyr::select("Interquartile Range" = iqr, 
-                "Median Absolute Deviation" = mad, 
-                Minimum = min, 
-                Mean = mean, 
+  dplyr::select(Minimum = min, 
                 Median = median, 
+                Mean = mean, 
                 Maximum = max, 
-                Observations = n, 
-                Missing = n_miss, 
+                "Interquartile Range" = iqr, 
                 Range = rng,
                 "Standard Deviation" = sd,
+                "Median Absolute Deviation" = mad, 
+                Observations = obs, 
+                Missing = miss, 
                 Skewness = skewness,
                 Skewed = skewed,
                 Kurtosis = kurtosis,
@@ -122,38 +94,10 @@ cars |>
   gluedown::md_table()
 ```
 
-```{r}
-histogram <- function(df, var, binwidth) {
-  label <- rlang::englue("A histogram of {{var}} with binwidth {binwidth}")
-  
-  df |> ggplot2::ggplot(ggplot2::aes({{ var }})) + 
-        ggplot2::geom_histogram(binwidth = binwidth) +
-        ggplot2::labs(title = label)
-}
-
-ggplot2::diamonds |> histogram(carat, 0.1)
-```
-
-```{r}
-density <- function(df, var, color, facets, binwidth = 0.1) {
-  df |> 
-    ggplot2::ggplot(ggplot2::aes({{ var }}, 
-                    ggplot2::after_stat(density), 
-                    color = {{ color }})) +
-    ggplot2::geom_freqpoly(binwidth = binwidth) +
-    ggplot2::facet_wrap(ggplot2::vars({{ facets }}))
-}
-
-ggplot2::diamonds |> density(carat)
-ggplot2::diamonds |> density(carat, cut)
-ggplot2::diamonds |> density(carat, cut, clarity)
-```
-
-
+## Proportions
 
 ```{r results='asis', echo=TRUE}
-purrr::map_dfr(2013:2020, 
-      ~provider::physician_by_service(npi = 1003000126, year = .x)) |> 
+phys |> 
   dplyr::select(year, 
                 hcpcs_cd, 
                 tot_benes, 
@@ -161,7 +105,13 @@ purrr::map_dfr(2013:2020,
                 avg_sbmtd_chrg, 
                 avg_mdcr_alowd_amt, 
                 avg_mdcr_pymt_amt) |> 
-  himni::count_prop(hcpcs_cd, sort = TRUE) |> 
+  dplyr::group_by(year) |>
+  dplyr::summarise(tot_benes = sum(tot_benes),
+                   tot_srvcs = sum(tot_srvcs), 
+                   avg_sbmtd_chrg = mean(avg_sbmtd_chrg),
+                   avg_mdcr_alowd_amt = mean(avg_mdcr_alowd_amt),
+                   avg_mdcr_pymt_amt = mean(avg_mdcr_pymt_amt),
+                   .groups = "drop") |> 
   gluedown::md_table()
 ```
 
@@ -172,4 +122,15 @@ ggplot2::diamonds |>
   head() |> 
   gluedown::md_table()
 ```
+
+
+## ggplots
+
+```{r}
+ggplot2::diamonds |> himni::histogram(carat, 0.1)
+ggplot2::diamonds |> himni::density(carat)
+ggplot2::diamonds |> himni::density(carat, cut)
+ggplot2::diamonds |> himni::density(carat, cut, clarity)
+```
+
 
