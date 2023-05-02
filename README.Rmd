@@ -127,10 +127,10 @@ ggplot2::diamonds |>
 ## ggplots
 
 ```{r}
-ggplot2::diamonds |> himni::histogram(carat, 0.1)
-ggplot2::diamonds |> himni::density(carat)
-ggplot2::diamonds |> himni::density(carat, cut)
-ggplot2::diamonds |> himni::density(carat, cut, clarity)
+ggplot2::diamonds |> himni::histogram(carat, 0.1) + himni::gg_theme()
+ggplot2::diamonds |> himni::density(carat) + himni::gg_theme()
+ggplot2::diamonds |> himni::density(carat, cut) + himni::gg_theme()
+ggplot2::diamonds |> himni::density(carat, cut, clarity) + himni::gg_theme()
 ```
 
 

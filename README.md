@@ -164,25 +164,25 @@ ggplot2::diamonds |>
 ## ggplots
 
 ``` r
-ggplot2::diamonds |> himni::histogram(carat, 0.1)
+ggplot2::diamonds |> himni::histogram(carat, 0.1) + himni::gg_theme()
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ``` r
-ggplot2::diamonds |> himni::density(carat)
+ggplot2::diamonds |> himni::density(carat) + himni::gg_theme()
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-2.png" width="100%" />
 
 ``` r
-ggplot2::diamonds |> himni::density(carat, cut)
+ggplot2::diamonds |> himni::density(carat, cut) + himni::gg_theme()
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-3.png" width="100%" />
 
 ``` r
-ggplot2::diamonds |> himni::density(carat, cut, clarity)
+ggplot2::diamonds |> himni::density(carat, cut, clarity) + himni::gg_theme()
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-4.png" width="100%" />

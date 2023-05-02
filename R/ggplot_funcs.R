@@ -84,3 +84,31 @@ fancy_ts <- function(df,
       minor_breaks = NULL,
       guide = ggplot2::guide_axis(position = "right"))
 }
+
+
+#' ggplot2 theme
+#' @return ggplot theme
+#' @export
+#' @autoglobal
+#' @examples
+#' ggplot2::diamonds |> histogram(carat, 0.1) + gg_theme()
+gg_theme <- function() {
+  ggplot2::theme_minimal(base_family = "Roboto Condensed") +
+    ggplot2::theme(plot.title = ggplot2::element_text(size = ggplot2::rel(1.5), face = "bold"),
+          plot.subtitle = ggplot2::element_text(size = ggplot2::rel(1.1)),
+          plot.caption = ggplot2::element_text(color = "#777777", vjust = 0),
+          axis.title = ggplot2::element_text(size = ggplot2::rel(.9), hjust = 0.95, face = "italic"),
+          panel.grid.major = ggplot2::element_line(size = ggplot2::rel(.1), color = "#000000"),
+          panel.grid.minor = ggplot2::element_line(size = ggplot2::rel(.05), color = "#000000"),
+          legend.position = "none")
+}
+# gg_labs <- function() {
+#   labs(title = "Average miles per gallon by number of cylinders",
+#        subtitle = "Scatter plot depicting average miles per gallon aggregated by number of cylinders",
+#        x = "Number of cylinders",
+#        y = "Miles per gallon",
+#        caption = "Source: Estimates calculated from the 'mtcars' data set")
+# }
+# gg_save <- function(file) {
+#   ggsave(file, width = 7, height = 4.5, units = "in")
+# }

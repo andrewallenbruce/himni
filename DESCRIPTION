@@ -18,9 +18,7 @@ Imports:
     stats,
     ggplot2,
     rlang,
-    scales,
-    tibble,
-    tidyr
+    scales
 Suggests: 
     roxyglobals (>= 0.2.1)
 Remotes: 
